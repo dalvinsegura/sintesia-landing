@@ -28,19 +28,18 @@ const { title, description = "Sintesia - Inteligencia Artificial que colabora, n
     creator: "@sintesia_ai"
   }}
   extend={{
-    link: [{ rel: "icon", href: "/logo.svg" }],
+    link: [
+      { rel: "icon", href: "/logo.svg" },
+      { rel: "apple-touch-icon", href: "/logo.svg" },
+    ],
     meta: [
       {
         name: "twitter:image",
-        content: "https://products.ls.graphics/mesh-gradients/images/29.-Pale-Cornflower-Blue_1.jpg",
+        content: "/logo.svg",
       },
       {
-        name: "twitter:title",
-        content: "Sintesia – Inteligencia Artificial que colabora, no reemplaza",
-      },
-      {
-        name: "twitter:description",
-        content: "Investigamos cómo agentes inteligentes pueden integrarse de forma segura, ética y útil en el día a día de las personas.",
+        property: "og:image",
+        content: "/logo.svg",
       },
     ],
   }}

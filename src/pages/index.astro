@@ -1,16 +1,122 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ContentSection from "../components/ContentSection.astro";
+import ResearchCard from "../components/ResearchCard.astro";
 
+// Define the expected structure of the module imported by glob
+interface MarkdownModule {
+  frontmatter: {
+    title: string;
+    date: string; // Dates from frontmatter are strings initially
+    summary: string;
+    image?: string;
+    tags: string[];
+  };
+  file: string; // Absolute path to the file
+}
+
+// Import all markdown files from the research directory
+const researchPostImports = import.meta.glob<MarkdownModule>('../content/research/*.md', { eager: true });
+const researchPosts: MarkdownModule[] = Object.values(researchPostImports);
+
+// Function to derive slug from filepath
+const getSlugFromFilePath = (filePath: string): string => {
+  const parts = filePath.split('/');
+  const fileName = parts[parts.length - 1];
+  return fileName.replace('.md', '');
+};
+
+const sectionsData = [
+  {
+    id: "sintesia",
+    title: "¿Qué es Sintesia?",
+    content:
+      "<p><strong>Sintesia</strong> es un laboratorio independiente de investigación y desarrollo enfocado en la creación de <strong>agentes inteligentes</strong> y <strong>workflows automatizados</strong> para resolver problemas complejos en entornos reales.</p><p>Diseñamos sistemas donde múltiples agentes colaboran entre sí y con humanos para ejecutar tareas con precisión, adaptabilidad y escalabilidad. Nuestro enfoque combina exploración técnica, diseño centrado en el usuario y validación constante a través de casos aplicados.</p>",
+  },
+  {
+    id: "vision",
+    title: "Nuestra Visión",
+    content:
+      "<p>Visualizamos un futuro donde los sistemas inteligentes no solo asistan a las personas, sino que trabajen con ellas de forma continua, razonando, aprendiendo y tomando decisiones a través de flujos de trabajo autónomos y confiables.</p><p>Queremos catalizar un nuevo paradigma de interacción entre humanos y máquinas: más colaborativo, más estratégico, más creativo.</p>",
+  },
+  {
+    id: "mission",
+    title: "Nuestra Misión",
+    content:
+      "<p>Investigar y construir la infraestructura tecnológica y conceptual necesaria para diseñar, desplegar y escalar <strong>equipos de agentes autónomos</strong>. Nuestro trabajo se basa en:</p><ul><li><strong>Arquitecturas de colaboración multi-agente</strong></li><li><strong>Workflows inteligentes orquestados</strong></li><li><strong>Interfaces conversacionales e interactivas</strong></li><li><strong>Investigación abierta enfocada en aplicaciones reales</strong></li></ul>",
+  },
+  {
+    id: "why",
+    title: "¿Por qué existimos?",
+    content:
+      "<p>Porque creemos que el software convencional ha llegado a su límite.</p><p>Porque la inteligencia artificial no debería estar contenida en herramientas aisladas, sino integrarse como parte activa de nuestras decisiones, acciones y procesos.</p><p>Porque los agentes inteligentes, correctamente diseñados, pueden liberar a los profesionales del trabajo repetitivo y elevar sus capacidades a nuevas alturas.</p>",
+  },
+  {
+    id: "invitation",
+    title: "Únete a Sintesia",
+    content:
+      "<p>Sintesia nació como una visión personal, pero está diseñada para crecer como una comunidad de práctica. Si eres investigador, desarrollador, estratega, diseñador o simplemente estás fascinado con la intersección entre IA y automatización, esta es tu invitación abierta.</p><p>Explora con nosotros. Investiga con nosotros. Construye lo que viene.</p><p>Bienvenido a Sintesia.</p>",
+  }
+];
+
+
+
+const pageTitle = "Sintesia - El Futuro del Trabajo Colaborativo";
+const pageDescription = "Sintesia investiga cómo agentes autónomos pueden potenciar a profesionales, creando sistemas inteligentes y escalables.";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main class="max-w-5xl mx-auto px-4">
+    <section class="hero min-h-screen flex flex-col justify-center items-start text-left py-20">
+      <h1 class="text-7xl md:text-9xl font-bold leading-none mb-6">
+          El Futuro es Colaborativo: Humanos + Agentes
+      </h1>
+      <p class="text-2xl md:text-3xl mt-4 text-gray-400 max-w-3xl">
+        {pageDescription} {/* Using the variable for consistency */}
+      </p>
+      <a href="#sintesia" class="mt-10 px-10 py-4 bg-white text-black text-xl font-bold rounded-lg shadow-xl hover:bg-gray-200 transition-transform transform hover:scale-105 duration-300">
+        Descubre la Visión
+      </a>
+    </section>
+
+    {sectionsData.map((section, index) => (
+      <ContentSection 
+        id={section.id} 
+        title={section.title} 
+        content={section.content} 
+        isAlternatingBg={index % 2 !== 0} 
+      />
+    ))}
+
+    <section id="research" class="py-24 border-t border-gray-800 section-fade-in">
+      <h2 class="text-5xl md:text-6xl font-bold mb-16 text-center">Nuestra Investigación</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {researchPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf()).map((post) => (
+          <ResearchCard 
+            slug={getSlugFromFilePath(post.file)}
+            title={post.frontmatter.title}
+            date={post.frontmatter.date}
+            summary={post.frontmatter.summary}
+            image={post.frontmatter.image}
+            tags={post.frontmatter.tags}
+          />
+        ))}
+      </div>
+    </section>
+
+    <section id="contact" class="py-24 border-t border-gray-800 text-center section-fade-in">
+      <h2 class="text-5xl md:text-6xl font-bold mb-10">Únete a la Conversación</h2>
+      <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+        Sintesia está en sus primeras etapas. Si te interesa la IA colaborativa y el futuro del trabajo, nos encantaría saber de ti.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+        <a href="https://github.com/dalvinsegura/sintesia-landingpage" target="_blank" class="px-8 py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors duration-300">
+          Ver en GitHub
+        </a>
+        <a href="mailto:sintesia-landingpage@dalvin.site" class="px-8 py-3 border border-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 hover:border-gray-600 transition-colors duration-300">
+          Contactar (sintesia-landingpage@dalvin.site)
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

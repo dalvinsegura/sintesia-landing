@@ -1,0 +1,82 @@
+---
+// Filepath: /Users/dalvin/Developer/sintesia-landing/src/pages/research/[slug].astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Define the expected structure of the module imported by glob
+// and what's passed as props from getStaticPaths
+interface MarkdownPostModule {
+  frontmatter: {
+    title: string;
+    date: string;
+    summary: string;
+    image?: string;
+    tags: string[];
+  };
+  file: string; // Absolute path to the file
+  url?: string;  // Astro-generated URL to the page (if it were in pages/)
+  Content: any; // Astro's component for rendering Markdown content
+}
+
+export async function getStaticPaths() {
+  // Astro.glob paths are relative to the current file.
+  // Glob for all markdown files in src/content/research/
+  const posts:any = await Astro.glob<MarkdownPostModule>('../../content/research/*.md');
+
+  return posts.map((post: { file: string; }) => {
+    // Derive slug from the filename
+    const filePathParts = post.file.split('/');
+    const fileName = filePathParts[filePathParts.length - 1];
+    const slug = fileName.  replace('.md', '');
+
+    return {
+      params: { slug: slug },
+      props: { post: post }, // Pass the full post object as a prop
+    };
+  });
+}
+
+// Type assertion for Astro.props
+const { post } = Astro.props as { post: MarkdownPostModule };
+
+const { Content } = post; // The Content component for rendering Markdown
+const { title, date, image, tags, summary } = post.frontmatter;
+---
+<BaseLayout title={title} description={summary}>
+  <article class="max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8 text-white section-fade-in">
+    {image && (
+      <img 
+        transition:name={`img-${post.file}`}
+        transition:animate="fade"
+        src={image} 
+        alt={`Imagen de portada para ${title}`} 
+        class="w-full h-auto max-h-[400px] object-cover rounded-lg mb-8 shadow-lg"
+      />
+    )}
+    <header class="mb-8">
+      <h1 transition:name={`title-${post.file}`} transition:animate="fade" class="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight tracking-tight">{title}</h1>
+      <p class="text-lg text-gray-400">
+        Publicado el {new Date(date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+      {tags && tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <span class="bg-gray-700 text-gray-300 px-3 py-1 text-sm font-semibold rounded-full">{tag}</span>
+          ))}
+        </div>
+      )}
+    </header>
+    
+    <div class="prose prose-xl prose-invert max-w-none text-gray-300 leading-relaxed selection:bg-yellow-400 selection:text-black">
+      <Content />
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-gray-800">
+      <a href="/#research" class="inline-flex items-center text-white hover:text-gray-300 transition-colors duration-300 font-semibold group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transform transition-transform duration-300 group-hover:-translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Volver a Investigación
+      </a>
+    </div>
+  </article>
+</BaseLayout>

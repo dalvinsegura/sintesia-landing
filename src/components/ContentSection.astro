@@ -1,0 +1,21 @@
+---
+// filepath: /Users/dalvin/Developer/sintesia-landing/src/components/ContentSection.astro
+interface Props {
+  id: string;
+  title: string;
+  content: string;
+  isAlternatingBg?: boolean;
+}
+
+const { id, title, content, isAlternatingBg = false } = Astro.props;
+---
+<section
+  id={id}
+  class:list={[
+    "py-24 border-t border-gray-800 section-fade-in",
+    { "bg-gray-900/30": isAlternatingBg }
+  ]}
+>
+  <h2 class="text-5xl md:text-6xl font-bold mb-10 text-center" set:html={title} />
+  <div class="prose prose-xl prose-invert max-w-none text-gray-300 leading-relaxed" set:html={content} />
+</section>
